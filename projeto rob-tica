@@ -1,0 +1,214 @@
+ #include<IRremote.h>
+#include <Servo.h>
+
+#define piezo 2
+#define rec 9
+
+#define ledR 10
+#define ledG 11
+#define ledB 12
+#define sensor A1
+
+
+int value=0;
+
+int valservo = 0;
+Servo servo_5;
+int led[]={2,3,7,8};
+int pot,potvol,valpot;
+
+
+
+float valor;
+IRrecv remo(rec);
+decode_results resultado;
+
+void setup()
+{
+ pinMode(A0,INPUT); 
+  pinMode(A1,INPUT); 
+ 
+   pinMode(ledR,OUTPUT);
+  pinMode(ledG,OUTPUT);
+   pinMode(ledB,OUTPUT);
+    pinMode(sensor,INPUT);
+  
+  
+  
+ remo.enableIRIn();
+  
+  servo_5.attach(5);
+  Serial.begin(9600);
+  
+}
+
+void loop()
+{
+  if(remo.decode(&resultado)){
+  valor=(resultado.value);
+    Serial.print("valor   :");
+Serial.println(valor,HEX);
+  
+  
+    switch(resultado.value){
+      
+      case 16605343: //frente
+        
+         frente();
+      break;
+      
+      case 16589023: //tras
+        
+         tras();
+        break;
+      
+      case 16597183: //stop
+         parar();
+        break;
+      
+      case 16593103://zero
+      potencia();
+      break;
+      
+      
+      
+     case 16615543://2
+      calculo();
+      break;
+      
+      
+      case 16582903://1
+      potenciamento();
+      break;
+      
+    }
+     remo.resume();
+  }
+  
+ 
+  
+}
+void parar(){
+  #define pinledve 7
+  #define pinledver 8
+  
+  digitalWrite(pinledve,0);
+  digitalWrite(pinledver,0);
+}
+void frente(){
+  #define pinledve 7
+  #define pinledver 8
+  digitalWrite(pinledve,1);
+  digitalWrite(pinledver,0);
+}
+void tras(){
+  #define pinledve 7
+#define pinledver 8
+  digitalWrite(pinledve,0);
+  digitalWrite(pinledver,1);
+}
+
+void potencia(){
+  
+  pot=analogRead(A0);
+  potvol=map(pot,0,1023,0,200);
+ Serial.print(potvol);
+ Serial.println(pot);
+digitalWrite(pot,1);
+  
+  
+}
+  
+void potenciamento(){
+ pot = analogRead(A0);
+  valpot = map(pot, 0, 1023, 0, 200);
+  Serial.println(valservo);
+  Serial.println(valpot);
+  servo_5.write(valpot);
+  
+  if (valpot == constrain(valpot, 0, 50)) {
+   digitalWrite(7, HIGH);
+    digitalWrite(8, LOW);
+    digitalWrite(2, LOW);
+    digitalWrite(3, LOW);
+    digitalWrite(2, LOW);
+     //noTone(2);
+  }
+  if (valpot == constrain(valpot, 50, 100)) {
+    digitalWrite(7, LOW);
+    digitalWrite(8, HIGH);
+    digitalWrite(4, LOW);
+    digitalWrite(3, LOW);
+    digitalWrite(2, LOW);
+   // noTone(2);
+  }
+  if (valpot == constrain(valpot, 100, 150)) {
+    digitalWrite(7, LOW);
+    digitalWrite(8, LOW);
+    digitalWrite(4, HIGH);
+    digitalWrite(3, LOW);
+     digitalWrite(2, LOW);
+    //noTone(2);
+  }
+  if (valpot == constrain(valpot, 150, 200)) {
+    digitalWrite(7, LOW);
+     digitalWrite(8, LOW);
+    digitalWrite(4, LOW);
+    digitalWrite(3, HIGH);
+     digitalWrite(2, HIGH);
+    
+    //tone(2, 17, 1000);
+  }
+}
+
+ void calculo(){
+ /*  
+   pot = analogRead(A0);
+  valpot = map(pot, 0, 1023, 0, 200);
+  Serial.println(valservo);
+  Serial.println(valpot);
+  servo_5.write(valpot);
+  
+  if (valpot == constrain(valpot, 0, 50)) 
+   
+   
+   */
+   
+   
+value = analogRead(A1);
+  valpot = map(value, 0, 1023, 0, 200);
+ 
+     if(valpot== constrain(valpot,50,100)){
+  
+  digitalWrite(ledR, HIGH);
+  digitalWrite(ledG, LOW);
+  digitalWrite(ledB, LOW);
+  }
+    
+  if(valpot== constrain(valpot,100,150)){
+  
+    digitalWrite(ledR, LOW);
+    digitalWrite(ledG, HIGH);
+    digitalWrite(ledB, LOW);
+  }
+   
+     if(valpot== constrain(valpot,150,200)){
+    digitalWrite(ledR, LOW);
+    digitalWrite(ledG, LOW);
+    digitalWrite(ledB, HIGH);
+  }
+    
+ Serial.print("  leitura DA TEMPERATURA :");
+  Serial.print(valpot);
+   Serial.println("\n-----------------------------------"); 
+   Serial.print("  o valor : " );
+   Serial.println(value);
+Serial.println("\n-----------------------------------"); 
+ 
+
+   delay(100);
+  }
+
+
+  
+
